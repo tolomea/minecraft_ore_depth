@@ -1,5 +1,6 @@
 import pymclevel
 from collections import defaultdict
+import csv
 
 block_ids = [
     # proj red ore
@@ -41,10 +42,11 @@ block_ids = [
     (643, 9, "thorite(r)"),
 ]
 
-# sotre the altitude frequency array for each block_id
-res = defaultdict(lambda: [0]*256)
 
 def main():
+    # sotre the altitude frequency array for each block_id
+    res = defaultdict(lambda: [0]*256)
+
     world = pymclevel.loadWorld("C:\\Users\\tolomea\\AppData\\Roaming\\.minecraft2\\saves\\New World-")
     for i, chunk_loc in enumerate(world.allChunks):
         print i, chunk_loc
@@ -58,8 +60,16 @@ def main():
                 mask &= (data == subblock_id)
             res[key] += mask.sum(0)
 
+    body = []
     for key in block_ids:
-        print key, res[key]
+        column = list(key) + list(res[key])
+        body.append(column)
+    body = zip(*body)
+    with open("dump.csv", "wb") as csvfile:
+        writer = csv.writer(csvfile, delimiter=",")
+        for r in body:
+            print r
+            writer.writerow(r)
 
 
 if __name__ == "__main__":
